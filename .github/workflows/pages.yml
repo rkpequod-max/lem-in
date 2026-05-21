@@ -25,12 +25,18 @@ jobs:
         id: pages
         uses: actions/configure-pages@v4
       
-      - name: Build with Jekyll
-        uses: jekyll/jekyll-build-action@v1
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
         with:
-          source: ./docs
-          destination: ./_site
-          jekyll_env: production
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: ./docs
+
+      - name: Build with Jekyll
+        working-directory: ./docs
+        run: |
+          bundle install
+          bundle exec jekyll build --destination ../_site
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
