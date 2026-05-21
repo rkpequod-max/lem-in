@@ -71,3 +71,62 @@ submake	:
 				@(cd $(SUB_MAKE) && $(MAKE))
 
 .PHONY	: all clean fclean re
+# Emscripten settings
+EMSDK_PATH?=$(HOME)/emsdk
+EMCC=$(EMSDK_PATH)/upstream/emscripten/emcc
+WEB_OUTPUT=./docs/lem-in.js
+
+web: submake_web
+@echo "Compiling to WebAssembly..."
+@$(EMCC) \
+-I $(INC) -I $(INC2) \
+-O2 \
+-s WASM=1 \
+-s ALLOW_MEMORY_GROWTH=1 \
+-s EXPORTED_FUNCTIONS='["_run_lemin", "_init_web", "_malloc", "_free"]' \
+-s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap", "UTF8ToString", "stringToUTF8"]' \
+-s MODULARIZE=1 \
+-s EXPORT_NAME="createLemInModule" \
+-s ENVIRONMENT=web \
+-o $(WEB_OUTPUT) \
+$(DIRSRC)lem_in.c \
+$(DIRFARM)*.c \
+$(DIRGRAPH)*.c \
+$(DIRSOLVE)*.c \
+$(SUB_MAKE)libft.a \
+-D__EMSCRIPTEN__
+@echo "WebAssembly build complete: $(WEB_OUTPUT)"
+
+submake_web:
+@mkdir -p $(DIROBJ)
+@(cd $(SUB_MAKE) && $(MAKE))
+# Add this to the end of your main Makefile
+
+.PHONY: web
+
+# Emscripten settings
+EMSDK_PATH?=$(HOME)/emsdk
+EMCC=$(EMSDK_PATH)/upstream/emscripten/emcc
+WEB_OUTPUT=./docs/lem-in.js
+
+web: submake
+@echo "🔨 Compiling Lem-in to WebAssembly..."
+@$(EMCC) \
+-I $(INC) -I $(INC2) \
+-O2 \
+-s WASM=1 \
+-s ALLOW_MEMORY_GROWTH=1 \
+-s EXPORTED_FUNCTIONS='["_run_lemin", "_init_web"]' \
+-s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap", "UTF8ToString", "stringToUTF8"]' \
+-s MODULARIZE=1 \
+-s EXPORT_NAME="createLemInModule" \
+-s ENVIRONMENT=web \
+-o $(WEB_OUTPUT) \
+$(DIRSRC)lem_in.c \
+$(wildcard $(DIRFARM)*.c) \
+$(wildcard $(DIRGRAPH)*.c) \
+$(wildcard $(DIRSOLVE)*.c) \
+$(SUB_MAKE)libft.a \
+-D__EMSCRIPTEN__
+@echo "✅ WebAssembly build complete!"
+@ls -lh $(WEB_OUTPUT)* 2>/dev/null || echo "Files generated"

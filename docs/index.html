@@ -3,202 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lem-in Interactive - Visualiseur & Shell</title>
+    <title>Lem-in - Documentation & Visualiseur</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Courier New', monospace; background: #1a1a2e; color: #eee; min-height: 100vh; display: flex; flex-direction: column; }
-        header { background: #16213e; padding: 1rem; text-align: center; border-bottom: 2px solid #0f3460; }
-        h1 { color: #e94560; margin-bottom: 0.5rem; }
-        .container { display: flex; flex: 1; gap: 1rem; padding: 1rem; max-width: 1600px; margin: 0 auto; width: 100%; }
-        .panel { background: #16213e; border-radius: 8px; padding: 1rem; border: 1px solid #0f3460; }
-        .left-panel { flex: 1; display: flex; flex-direction: column; gap: 1rem; }
-        .right-panel { flex: 2; display: flex; flex-direction: column; }
-        .shell-container { background: #0d1b2a; border-radius: 4px; padding: 1rem; height: 300px; overflow-y: auto; font-size: 0.9rem; }
-        .shell-output { white-space: pre-wrap; color: #00ff88; margin-bottom: 1rem; }
-        .shell-input-line { display: flex; gap: 0.5rem; align-items: center; }
-        .prompt { color: #e94560; font-weight: bold; }
-        #shell-input { flex: 1; background: transparent; border: none; color: #fff; font-family: inherit; font-size: inherit; outline: none; }
-        .controls { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
-        button { background: #e94560; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-family: inherit; transition: background 0.3s; }
-        button:hover { background: #ff6b6b; }
-        .canvas-container { flex: 1; background: #0d1b2a; border-radius: 4px; position: relative; overflow: hidden; min-height: 400px; }
-        #farm-canvas { width: 100%; height: 100%; display: block; }
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem; }
-        .stat-box { background: #0d1b2a; padding: 1rem; border-radius: 4px; text-align: center; }
-        .stat-value { font-size: 2rem; color: #e94560; font-weight: bold; }
-        .stat-label { font-size: 0.8rem; color: #aaa; margin-top: 0.25rem; }
-        .speed-control { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; }
-        input[type="range"] { flex: 1; }
-        .help-text { font-size: 0.8rem; color: #888; margin-top: 0.5rem; }
-        @media (max-width: 768px) { .container { flex-direction: column; } .shell-container { height: 200px; } .canvas-container { min-height: 300px; } }
+        body { font-family: 'Segoe UI', sans-serif; line-height: 1.6; max-width: 1200px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; }
+        h2 { color: #34495e; margin-top: 30px; }
+        .nav { background: #3498db; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .nav a { color: white; text-decoration: none; margin-right: 20px; font-weight: bold; }
+        .nav a:hover { text-decoration: underline; }
+        .content { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        code { background: #ecf0f1; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
+        pre { background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .highlight { background: #f1c40f; padding: 2px 6px; border-radius: 3px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #bdc3c7; padding: 12px; text-align: left; }
+        th { background: #3498db; color: white; }
+        tr:nth-child(even) { background: #ecf0f1; }
+        .btn { display: inline-block; background: #27ae60; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
+        .btn:hover { background: #2ecc71; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>🐜 Lem-in Interactive</h1>
-        <p>Shell interactif & Visualiseur - Simule le projet dans le navigateur</p>
-    </header>
-    <div class="container">
-        <div class="left-panel">
-            <div class="panel">
-                <h3 style="color: #e94560; margin-bottom: 0.5rem;">📟 Shell Interactif</h3>
-                <div class="shell-container" id="shell-container">
-                    <div class="shell-output" id="shell-output">Bienvenue dans Lem-in Interactive v1.0
-Tapez 'help' pour voir les commandes disponibles.
-
-</div>
-                    <div class="shell-input-line">
-                        <span class="prompt">lem-in$</span>
-                        <input type="text" id="shell-input" placeholder="Tapez une commande..." autocomplete="off">
-                    </div>
-                </div>
-                <div class="controls">
-                    <button onclick="generateMap('easy')">Générer Facile</button>
-                    <button onclick="generateMap('medium')">Générer Moyen</button>
-                    <button onclick="generateMap('hard')">Générer Difficile</button>
-                    <button onclick="runSolver()">Lancer Résolution</button>
-                    <button onclick="resetSimulation()">Reset</button>
-                </div>
-                <div class="help-text">Commandes: generate, solve, reset, help, clear, speed [n]</div>
-            </div>
-            <div class="panel">
-                <h3 style="color: #e94560; margin-bottom: 0.5rem;">⚙️ Contrôles</h3>
-                <div class="speed-control">
-                    <label>Vitesse:</label>
-                    <input type="range" id="speed-slider" min="1" max="100" value="50">
-                    <span id="speed-value">50%</span>
-                </div>
-                <div class="controls">
-                    <button onclick="togglePause()" id="pause-btn">Pause</button>
-                    <button onclick="stepForward()">Step +</button>
-                    <button onclick="toggleLabels()" id="labels-btn">Labels: ON</button>
-                </div>
-            </div>
-        </div>
-        <div class="right-panel">
-            <div class="panel" style="flex: 1; display: flex; flex-direction: column;">
-                <h3 style="color: #e94560; margin-bottom: 0.5rem;">🎮 Visualiseur</h3>
-                <div class="canvas-container"><canvas id="farm-canvas"></canvas></div>
-                <div class="stats">
-                    <div class="stat-box"><div class="stat-value" id="stat-ants">0</div><div class="stat-label">Fourmis Totales</div></div>
-                    <div class="stat-box"><div class="stat-value" id="stat-moved">0</div><div class="stat-label">Déplacements</div></div>
-                    <div class="stat-box"><div class="stat-value" id="stat-arrived">0</div><div class="stat-label">Arrivées</div></div>
-                    <div class="stat-box"><div class="stat-value" id="stat-turns">0</div><div class="stat-label">Tours</div></div>
-                    <div class="stat-box"><div class="stat-value" id="stat-paths">0</div><div class="stat-label">Chemins</div></div>
-                    <div class="stat-box"><div class="stat-value" id="stat-status">Ready</div><div class="stat-label">Statut</div></div>
-                </div>
-            </div>
-        </div>
+    <div class="nav">
+        <a href="index.html">📚 Documentation</a>
+        <a href="lem-in-visualizer.html">🐜 Visualiseur WASM</a>
+        <a href="https://github.com/rkpequod-max/lem-in" target="_blank">🔗 GitHub</a>
     </div>
-    <script>
-        class Room { constructor(name, x, y) { this.name = name; this.x = x; this.y = y; this.links = []; this.isStart = false; this.isEnd = false; this.ant = null; } }
-        class Ant { constructor(id) { this.id = id; this.room = null; this.finished = false; } }
-        class Path { constructor() { this.rooms = []; this.antsToSend = 0; this.antsSent = 0; } }
-        class LemInEngine {
-            constructor() { this.rooms = []; this.ants = []; this.paths = []; this.startRoom = null; this.endRoom = null; this.totalAnts = 0; this.turns = 0; this.moves = []; this.isRunning = false; this.isPaused = false; this.speed = 50; this.animationId = null; }
-            generateMap(difficulty = 'medium') {
-                this.reset();
-                let config = difficulty === 'easy' ? { ants: 5, rooms: 8, links: 10 } : difficulty === 'hard' ? { ants: 50, rooms: 50, links: 100 } : { ants: 15, rooms: 20, links: 35 };
-                for (let i = 0; i < config.rooms; i++) {
-                    const name = i === 0 ? 'start' : (i === config.rooms - 1 ? 'end' : `R${i}`);
-                    const room = new Room(name, Math.random() * 800, Math.random() * 600);
-                    if (i === 0) { room.isStart = true; this.startRoom = room; } else if (i === config.rooms - 1) { room.isEnd = true; this.endRoom = room; }
-                    this.rooms.push(room);
-                }
-                const connected = [0];
-                for (let i = 1; i < config.rooms; i++) { this.addLink(this.rooms[connected[Math.floor(Math.random() * connected.length)]], this.rooms[i]); connected.push(i); }
-                let linksAdded = connected.length - 1;
-                while (linksAdded < config.links) { const i1 = Math.floor(Math.random() * config.rooms), i2 = Math.floor(Math.random() * config.rooms); if (i1 !== i2 && !this.areLinked(this.rooms[i1], this.rooms[i2])) { this.addLink(this.rooms[i1], this.rooms[i2]); linksAdded++; } }
-                this.totalAnts = config.ants;
-                for (let i = 0; i < config.ants; i++) this.ants.push(new Ant(i + 1));
-                return config;
-            }
-            addLink(r1, r2) { if (!r1.links.includes(r2)) r1.links.push(r2); if (!r2.links.includes(r1)) r2.links.push(r1); }
-            areLinked(r1, r2) { return r1.links.includes(r2); }
-            findPathsBFS() {
-                this.paths = [];
-                const visited = new Set(), queue = [[this.startRoom]];
-                while (queue.length > 0 && this.paths.length < 3) {
-                    const path = queue.shift(), current = path[path.length - 1];
-                    if (current === this.endRoom) { const newPath = new Path(); newPath.rooms = [...path]; newPath.antsToSend = Math.max(1, Math.floor(this.totalAnts / (this.paths.length + 1))); this.paths.push(newPath); continue; }
-                    for (const neighbor of current.links) { if (!visited.has(neighbor) && !path.includes(neighbor)) { const inOther = this.paths.some(p => p.rooms.slice(1, -1).includes(neighbor)); if (!inOther || neighbor === this.startRoom || neighbor === this.endRoom) { visited.add(neighbor); queue.push([...path, neighbor]); } } }
-                }
-                let remaining = this.totalAnts;
-                this.paths.forEach((p, idx) => { p.antsToSend = idx === this.paths.length - 1 ? remaining : Math.min(remaining, Math.floor(this.totalAnts / this.paths.length)); remaining -= p.antsToSend; });
-                return this.paths.length;
-            }
-            solve() { const found = this.findPathsBFS(); if (found === 0) return "Aucun chemin !"; this.paths.forEach(p => p.antsSent = 0); this.turns = 0; this.moves = []; this.isRunning = true; this.isPaused = false; return `Résolution lancée ! ${found} chemin(s).`; }
-            step() {
-                if (!this.isRunning || this.isPaused) return false;
-                const movesThisTurn = [];
-                this.paths.forEach(path => {
-                    for (let i = path.rooms.length - 1; i >= 0; i--) {
-                        const room = path.rooms[i];
-                        if (room.ant && !room.ant.finished) {
-                            const ant = room.ant;
-                            if (i === path.rooms.length - 1) { ant.finished = true; room.ant = null; }
-                            else { const next = path.rooms[i + 1]; if (!next.ant) { room.ant = null; next.ant = ant; ant.room = next; movesThisTurn.push({ ant: ant.id, from: room.name, to: next.name }); } }
-                        }
-                    }
-                });
-                let toDeploy = this.totalAnts - this.paths.reduce((sum, p) => sum + p.antsSent, 0);
-                this.paths.forEach(path => { if (path.antsSent < path.antsToSend && toDeploy > 0 && !path.rooms[0].ant) { const ant = this.ants.find(a => !a.room && !a.finished); if (ant) { path.rooms[0].ant = ant; ant.room = path.rooms[0]; path.antsSent++; toDeploy--; movesThisTurn.push({ ant: ant.id, from: 'START', to: path.rooms[0].name }); } } });
-                this.turns++; this.moves.push(...movesThisTurn);
-                if (this.ants.every(a => a.finished)) this.isRunning = false;
-                return !this.isRunning;
-            }
-            reset() { this.isRunning = false; this.isPaused = false; this.turns = 0; this.moves = []; this.paths = []; this.rooms.forEach(r => r.ant = null); this.ants.forEach(a => { a.room = null; a.finished = false; }); }
-            getStatus() { const arrived = this.ants.filter(a => a.finished).length; return { total: this.totalAnts, arrived, turns: this.turns, paths: this.paths.length, running: this.isRunning, paused: this.isPaused }; }
-        }
-        const engine = new LemInEngine(), canvas = document.getElementById('farm-canvas'), ctx = canvas.getContext('2d'), shellOutput = document.getElementById('shell-output'), shellInput = document.getElementById('shell-input');
-        let showLabels = true, animationRunning = false;
-        function resizeCanvas() { const c = canvas.parentElement; canvas.width = c.clientWidth; canvas.height = c.clientHeight; draw(); }
-        window.addEventListener('resize', resizeCanvas);
-        function draw() {
-            ctx.fillStyle = '#0d1b2a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            if (engine.rooms.length === 0) { ctx.fillStyle = '#666'; ctx.font = '20px Courier New'; ctx.textAlign = 'center'; ctx.fillText('Aucune carte. Cliquez sur Générer.', canvas.width/2, canvas.height/2); return; }
-            ctx.strokeStyle = '#0f3460'; ctx.lineWidth = 2;
-            engine.rooms.forEach(room => { room.links.forEach(link => { ctx.beginPath(); ctx.moveTo(room.x, room.y); ctx.lineTo(link.x, link.y); ctx.stroke(); }); });
-            engine.paths.forEach((path, idx) => { ctx.strokeStyle = `hsl(${idx * 120}, 70%, 50%)`; ctx.lineWidth = 4; ctx.beginPath(); path.rooms.forEach((r, i) => { if (i === 0) ctx.moveTo(r.x, r.y); else ctx.lineTo(r.x, r.y); }); ctx.stroke(); });
-            engine.rooms.forEach(room => {
-                ctx.beginPath(); ctx.arc(room.x, room.y, room.isStart || room.isEnd ? 20 : 12, 0, Math.PI * 2);
-                ctx.fillStyle = room.isStart ? '#00ff88' : room.isEnd ? '#e94560' : '#16213e'; ctx.fill();
-                ctx.strokeStyle = room.ant ? '#fff' : '#444'; ctx.lineWidth = room.ant ? 3 : 1; ctx.stroke();
-                if (showLabels) { ctx.fillStyle = '#fff'; ctx.font = '10px Courier New'; ctx.textAlign = 'center'; ctx.fillText(room.name, room.x, room.y - 18); }
-                if (room.ant) { ctx.fillStyle = '#ffd700'; ctx.beginPath(); ctx.arc(room.x, room.y, 6, 0, Math.PI * 2); ctx.fill(); if (showLabels) { ctx.fillStyle = '#ffd700'; ctx.font = 'bold 9px Courier New'; ctx.fillText('L'+room.ant.id, room.x, room.y + 4); } }
-            });
-        }
-        function updateStats() { const s = engine.getStatus(); document.getElementById('stat-ants').textContent = s.total; document.getElementById('stat-moved').textContent = engine.moves.length; document.getElementById('stat-arrived').textContent = s.arrived; document.getElementById('stat-turns').textContent = s.turns; document.getElementById('stat-paths').textContent = s.paths; document.getElementById('stat-status').textContent = s.running ? (s.paused ? 'Paused' : 'Running') : (s.arrived === s.total && s.total > 0 ? 'Done!' : 'Ready'); }
-        function animate() { if (engine.isRunning && !engine.isPaused) { engine.step(); draw(); updateStats(); } if (engine.isRunning) { setTimeout(() => { animationId = requestAnimationFrame(animate); }, 101 - engine.speed); } }
-        function startAnimation() { if (!animationRunning) { animationRunning = true; animate(); } }
-        function stopAnimation() { if (animationId) cancelAnimationFrame(animationId); animationRunning = false; }
-        function addToShell(text, color = '#00ff88') { const line = document.createElement('div'); line.textContent = text; line.style.color = color; shellOutput.appendChild(line); document.getElementById('shell-container').scrollTop = document.getElementById('shell-container').scrollHeight; }
-        function processCommand(cmd) {
-            const parts = cmd.trim().split(' '), command = parts[0].toLowerCase(), args = parts.slice(1);
-            addToShell('lem-in$ ' + cmd, '#e94560');
-            switch(command) {
-                case 'help': addToShell('Commandes: generate [easy|medium|hard], solve, reset, pause, resume, speed [1-100], labels [on|off], status, clear', '#fff'); break;
-                case 'generate': const cfg = engine.generateMap(args[0] || 'medium'); addToShell('Carte générée: '+cfg.ants+' fourmis, '+engine.rooms.length+' salles', '#00ff88'); draw(); updateStats(); break;
-                case 'solve': if (engine.rooms.length === 0) addToShell('Erreur: Générez d\'abord une carte!', '#ff4444'); else { addToShell(engine.solve(), '#00ff88'); startAnimation(); updateStats(); } break;
-                case 'reset': engine.reset(); stopAnimation(); draw(); updateStats(); addToShell('Réinitialisé.', '#00ff88'); break;
-                case 'pause': engine.isPaused = true; document.getElementById('pause-btn').textContent = 'Resume'; addToShell('Pause.', '#ffa500'); break;
-                case 'resume': case 'restart': engine.isPaused = false; document.getElementById('pause-btn').textContent = 'Pause'; addToShell('Repris.', '#00ff88'); break;
-                case 'speed': const spd = parseInt(args[0]); if (spd >= 1 && spd <= 100) { engine.speed = spd; document.getElementById('speed-slider').value = spd; document.getElementById('speed-value').textContent = spd+'%'; addToShell('Vitesse: '+spd+'%', '#00ff88'); } else addToShell('Erreur: 1-100', '#ff4444'); break;
-                case 'labels': showLabels = args[0] !== 'off'; document.getElementById('labels-btn').textContent = 'Labels: '+(showLabels?'ON':'OFF'); draw(); break;
-                case 'status': addToShell(JSON.stringify(engine.getStatus(), null, 2), '#00ff88'); break;
-                case 'clear': shellOutput.innerHTML = ''; addToShell('Effacé.', '#00ff88'); break;
-                default: if (command) addToShell('Commande inconnue. Tapez help.', '#ff4444');
-            }
-        }
-        shellInput.addEventListener('keypress', e => { if (e.key === 'Enter') { processCommand(shellInput.value); shellInput.value = ''; } });
-        function generateMap(d) { processCommand('generate '+d); }
-        function runSolver() { processCommand('solve'); }
-        function resetSimulation() { processCommand('reset'); }
-        function togglePause() { if (engine.isPaused) processCommand('resume'); else if (engine.isRunning) processCommand('pause'); else processCommand('solve'); }
-        function stepForward() { if (!engine.isRunning) processCommand('solve'); else { engine.step(); draw(); updateStats(); } }
-        function toggleLabels() { showLabels = !showLabels; document.getElementById('labels-btn').textContent = 'Labels: '+(showLabels?'ON':'OFF'); draw(); }
-        document.getElementById('speed-slider').addEventListener('input', e => { engine.speed = parseInt(e.target.value); document.getElementById('speed-value').textContent = engine.speed+'%'; });
-        resizeCanvas(); addToShell('Prêt. Générez une carte pour commencer!', '#00ff88'); updateStats();
-    </script>
+
+    <div class="content">
+        <h1>🐜 Lem-in - Projet 42 School</h1>
+        
+        <p><strong>Lem-in</strong> est un projet algorithmique qui consiste à faire passer un nombre donné de fourmis d'un point de départ à un point d'arrivée dans le minimum de tours, en évitant les collisions.</p>
+
+        <a href="lem-in-visualizer.html" class="btn">▶️ Lancer le Visualiseur Interactif</a>
+
+        <h2>📋 Sommaire</h2>
+        <ul>
+            <li><a href="#structures">Structures de Données</a></li>
+            <li><a href="#algorithmes">Algorithmes (BFS & Flux)</a></li>
+            <li><a href="#fonctions">Fonctions Principales</a></li>
+            <li><a href="#exemple">Exemple Complet</a></li>
+            <li><a href="#complexite">Complexité</a></li>
+        </ul>
+
+        <h2 id="structures">🏗️ Structures de Données</h2>
+        
+        <h3>t_room - La Structure Centrale</h3>
+        <pre>typedef struct s_room {
+    char *name;           // Nom de la salle (ex: "1", "A", "start")
+    t_coord c;            // Coordonnées (x, y)
+    int ant;              // ID de la fourmi actuellement dans la salle
+    int start;            // 1 si c'est le point de départ
+    int end;              // 1 si c'est le point d'arrivée
+    t_list *lnks;         // Liste des salles connectées (voisins)
+    struct s_room *f_to;  // Salle suivante dans le flux de fourmis
+    struct s_room *f_fm;  // Salle précédente dans le flux
+    struct s_room *next;  // Salle suivante dans la liste globale
+} t_room;</pre>
+
+        <h3>t_bfs - Pour la Résolution</h3>
+        <pre>typedef struct s_bfs {
+    int path_size;      // Longueur du chemin depuis le départ
+    int send_ants;      // Nombre de fourmis à envoyer sur ce chemin
+    int min_ants;       // Nombre optimal de fourmis calculé
+    t_room **room;      // Pointeur vers le pointeur de salle
+    struct s_bfs *prev; // Noeud précédent dans le chemin BFS
+    struct s_bfs *next; // Noeud suivant dans la liste BFS
+} t_bfs;</pre>
+
+        <h3>t_farm - Conteneur Principal</h3>
+        <pre>typedef struct s_farm {
+    int ants;      // Nombre total de fourmis à déplacer
+    t_room *rms;   // Pointeur vers la première salle
+} t_farm;</pre>
+
+        <h2 id="algorithmes">🧮 Algorithmes</h2>
+
+        <h3>1. BFS (Breadth-First Search)</h3>
+        <p>Le parcours en largeur permet de trouver le chemin le plus court entre le départ et l'arrivée.</p>
+        <ul>
+            <li>Explore tous les voisins niveau par niveau</li>
+            <li>Garantit le chemin le plus court en nombre de salles</li>
+            <li>Utilise une file FIFO pour l'exploration</li>
+        </ul>
+
+        <h3>2. Gestion du Flux de Fourmis</h3>
+        <p>Après chaque BFS réussi, on marque le chemin avec <code>f_to</code> et <code>f_fm</code> pour créer un "tunnel" virtuel où les fourmis circulent sans collision.</p>
+        <pre>// Update Flow - Création des tunnels
+r->f_fm = prv;    // Marque le retour
+prv->f_to = r;    // Marque l'avant</pre>
+
+        <h3>3. Optimisation du Nombre de Tours</h3>
+        <p>La fonction <code>path_config()</code> calcule le nombre optimal de fourmis par chemin pour minimiser le total de tours :</p>
+        <p><span class="highlight">Formule : Tours = longest_path + num_ants - 1</span></p>
+
+        <h2 id="fonctions">📚 Fonctions Principales</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Fonction</th>
+                    <th>Module</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>fill_farm()</code></td><td>Parsing</td><td>Lit et valide l'input ligne par ligne</td></tr>
+                <tr><td><code>is_room()</code></td><td>Validation</td><td>Vérifie le format d'une salle (nom x y)</td></tr>
+                <tr><td><code>is_link()</code></td><td>Validation</td><td>Vérifie et crée un lien room1-room2</td></tr>
+                <tr><td><code>bfs()</code></td><td>Résolution</td><td>Parcours en largeur pour trouver un chemin</td></tr>
+                <tr><td><code>update_flow()</code></td><td>Flux</td><td>Marque les tunnels f_to/f_fm après BFS</td></tr>
+                <tr><td><code>send_ants()</code></td><td>Simulation</td><td>Fait circuler les fourmis tour par tour</td></tr>
+                <tr><td><code>path_config()</code></td><td>Optimisation</td><td>Calcule le nombre optimal de fourmis par chemin</td></tr>
+            </tbody>
+        </table>
+
+        <h2 id="exemple">📝 Exemple Complet</h2>
+
+        <h3>Input :</h3>
+        <pre>4
+
+##start
+1 0 0
+2 1 0
+3 0 1
+4 1 1
+##end
+5 2 0
+
+1-2
+1-3
+2-4
+3-4
+4-5</pre>
+
+        <h3>Output :</h3>
+        <pre>L1-2 L2-3
+L1-4 L2-4
+L1-5 L2-5
+L3-2 L4-3
+L3-4 L4-4
+L3-5 L4-5</pre>
+
+        <h2 id="complexite">⏱️ Complexité</h2>
+        <ul>
+            <li><strong>BFS :</strong> O(V + E) où V = nombre de salles, E = nombre de liens</li>
+            <li><strong>Simulation :</strong> O(tours × fourmis)</li>
+            <li><strong>Mémoire :</strong> O(V) pour stocker le graphe</li>
+        </ul>
+
+        <h2>⚠️ Pièges Courants</h2>
+        <ul>
+            <li>❌ Oublier de libérer la mémoire (fuites)</li>
+            <li>❌ Ne pas gérer les commentaires <code>#</code></li>
+            <li>❌ Accepter plusieurs start/end</li>
+            <li>❌ Laisser des fourmis se cogner</li>
+            <li>❌ Ne pas gérer les chemins de longueurs différentes</li>
+        </ul>
+
+        <hr>
+        <p style="text-align: center; color: #7f8c8d; margin-top: 40px;">
+            Projet Lem-in - 42 School | 
+            <a href="lem-in-visualizer.html">Lancer le visualiseur</a> | 
+            <a href="https://github.com/rkpequod-max/lem-in">Voir sur GitHub</a>
+        </p>
+    </div>
 </body>
 </html>
