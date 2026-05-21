@@ -3,294 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lem-in - Documentation Complète</title>
+    <title>Lem-in Interactive - Visualiseur & Shell</title>
     <style>
-        :root {
-            --primary: #2c3e50;
-            --secondary: #3498db;
-            --accent: #e74c3c;
-            --bg: #f8f9fa;
-            --text: #333;
-            --code-bg: #2d2d2d;
-            --code-text: #f8f8f2;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: var(--text);
-            background: var(--bg);
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 2rem 0;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        header h1 { margin: 0; font-size: 2.5rem; }
-        header p { opacity: 0.9; font-size: 1.2rem; }
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 20px;
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            gap: 2rem;
-        }
-        nav {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            height: fit-content;
-            position: sticky;
-            top: 20px;
-        }
-        nav ul { list-style: none; padding: 0; }
-        nav li { margin-bottom: 0.8rem; }
-        nav a {
-            text-decoration: none;
-            color: var(--primary);
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-        nav a:hover { color: var(--secondary); }
-        main {
-            background: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        h2 { color: var(--primary); border-bottom: 2px solid var(--secondary); padding-bottom: 0.5rem; margin-top: 2rem; }
-        h3 { color: var(--secondary); margin-top: 1.5rem; }
-        code {
-            background: #eee;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Consolas', 'Monaco', monospace;
-            color: #d63384;
-        }
-        pre {
-            background: var(--code-bg);
-            color: var(--code-text);
-            padding: 1rem;
-            border-radius: 6px;
-            overflow-x: auto;
-            font-family: 'Consolas', 'Monaco', monospace;
-        }
-        .struct-box {
-            border-left: 4px solid var(--secondary);
-            background: #f1f8ff;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 0 4px 4px 0;
-        }
-        table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background: var(--primary); color: white; }
-        tr:nth-child(even) { background: #f9f9f9; }
-        .warning {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 0 4px 4px 0;
-        }
-        .success {
-            background: #d4edda;
-            border-left: 4px solid #28a745;
-            padding: 1rem;
-            margin: 1rem 0;
-            border-radius: 0 4px 4px 0;
-        }
-        @media (max-width: 768px) {
-            .container { grid-template-columns: 1fr; }
-            nav { position: static; margin-bottom: 2rem; }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Courier New', monospace; background: #1a1a2e; color: #eee; min-height: 100vh; display: flex; flex-direction: column; }
+        header { background: #16213e; padding: 1rem; text-align: center; border-bottom: 2px solid #0f3460; }
+        h1 { color: #e94560; margin-bottom: 0.5rem; }
+        .container { display: flex; flex: 1; gap: 1rem; padding: 1rem; max-width: 1600px; margin: 0 auto; width: 100%; }
+        .panel { background: #16213e; border-radius: 8px; padding: 1rem; border: 1px solid #0f3460; }
+        .left-panel { flex: 1; display: flex; flex-direction: column; gap: 1rem; }
+        .right-panel { flex: 2; display: flex; flex-direction: column; }
+        .shell-container { background: #0d1b2a; border-radius: 4px; padding: 1rem; height: 300px; overflow-y: auto; font-size: 0.9rem; }
+        .shell-output { white-space: pre-wrap; color: #00ff88; margin-bottom: 1rem; }
+        .shell-input-line { display: flex; gap: 0.5rem; align-items: center; }
+        .prompt { color: #e94560; font-weight: bold; }
+        #shell-input { flex: 1; background: transparent; border: none; color: #fff; font-family: inherit; font-size: inherit; outline: none; }
+        .controls { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 1rem; }
+        button { background: #e94560; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-family: inherit; transition: background 0.3s; }
+        button:hover { background: #ff6b6b; }
+        .canvas-container { flex: 1; background: #0d1b2a; border-radius: 4px; position: relative; overflow: hidden; min-height: 400px; }
+        #farm-canvas { width: 100%; height: 100%; display: block; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .stat-box { background: #0d1b2a; padding: 1rem; border-radius: 4px; text-align: center; }
+        .stat-value { font-size: 2rem; color: #e94560; font-weight: bold; }
+        .stat-label { font-size: 0.8rem; color: #aaa; margin-top: 0.25rem; }
+        .speed-control { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; }
+        input[type="range"] { flex: 1; }
+        .help-text { font-size: 0.8rem; color: #888; margin-top: 0.5rem; }
+        @media (max-width: 768px) { .container { flex-direction: column; } .shell-container { height: 200px; } .canvas-container { min-height: 300px; } }
     </style>
 </head>
 <body>
+    <header>
+        <h1>🐜 Lem-in Interactive</h1>
+        <p>Shell interactif & Visualiseur - Simule le projet dans le navigateur</p>
+    </header>
+    <div class="container">
+        <div class="left-panel">
+            <div class="panel">
+                <h3 style="color: #e94560; margin-bottom: 0.5rem;">📟 Shell Interactif</h3>
+                <div class="shell-container" id="shell-container">
+                    <div class="shell-output" id="shell-output">Bienvenue dans Lem-in Interactive v1.0
+Tapez 'help' pour voir les commandes disponibles.
 
-<header>
-    <h1>🐜 Lem-in Project</h1>
-    <p>Guide Complet d'Architecture et d'Implémentation</p>
-</header>
-
-<div class="container">
-    <nav>
-        <ul>
-            <li><a href="#overview">📋 Vue d'ensemble</a></li>
-            <li><a href="#structures">🏗️ Structures de Données</a></li>
-            <li><a href="#parsing">🔍 Parsing & Validation</a></li>
-            <li><a href="#graph">🕸️ Gestion du Graphe</a></li>
-            <li><a href="#bfs">🧠 Algorithme BFS</a></li>
-            <li><a href="#flow">🌊 Flux de Fourmis</a></li>
-            <li><a href="#optimization">⚡ Optimisation</a></li>
-            <li><a href="#workflow">🔄 Workflow Complet</a></li>
-        </ul>
-    </nav>
-
-    <main>
-        <section id="overview">
-            <h2>📋 Vue d'Ensemble</h2>
-            <p><strong>Lem-in</strong> est un projet de la 42 School consistant à faire passer un nombre donné de fourmis d'un point de départ à un point d'arrivée dans le minimum de tours, en évitant les collisions.</p>
-            <div class="success">
-                <strong>Concept Clé :</strong> Le projet utilise un algorithme de <em>BFS (Breadth-First Search)</em> combiné à une gestion de <em>flux de fourmis</em> sur des chemins disjoints.
-            </div>
-        </section>
-
-        <section id="structures">
-            <h2>🏗️ Structures de Données</h2>
-            
-            <div class="struct-box">
-                <h3>1. t_room (Structure Centrale)</h3>
-                <pre>typedef struct s_room {
-    char *name;           // Nom de la salle (ex: "1", "A")
-    t_coord c;            // Coordonnées (x, y)
-    int ant;              // ID de la fourmi (0 si vide)
-    int start;            // 1 si départ, 0 sinon
-    int end;              // 1 si arrivée, 0 sinon
-    t_list *lnks;         // Liste des voisins
-    struct s_room *f_to;  // Salle suivante dans le flux (forward)
-    struct s_room *f_fm;  // Salle précédente (from)
-    struct s_room *next;  // Salle suivante dans la liste globale
-} t_room;</pre>
-                <p><strong>Rôle critique :</strong> <code>f_to</code> et <code>f_fm</code> créent un "tunnel" virtuel pour le flux après le BFS.</p>
-            </div>
-
-            <div class="struct-box">
-                <h3>2. t_bfs (Résolution)</h3>
-                <pre>typedef struct s_bfs {
-    int path_size;      // Longueur du chemin
-    int send_ants;      // Fourmis à envoyer
-    int min_ants;       // Optimal calculé
-    t_room **room;      // Double pointeur vers la salle
-    struct s_bfs *prev; // Noeud précédent (backtracking)
-    struct s_bfs *next; // Noeud suivant (file)
-} t_bfs;</pre>
-            </div>
-
-            <div class="struct-box">
-                <h3>3. t_farm (Conteneur)</h3>
-                <pre>typedef struct s_farm {
-    int ants;      // Nombre total de fourmis
-    t_room *rms;   // Liste chaînée des salles
-} t_farm;</pre>
-            </div>
-        </section>
-
-        <section id="parsing">
-            <h2>🔍 Parsing et Validation</h2>
-            <p>Le parsing se fait ligne par ligne via une machine à états finis (FSM) à 3 sections :</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Section</th>
-                        <th>Attendu</th>
-                        <th>Fonction Clé</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>0</td><td>Nombre de fourmis</td><td><code>is_num()</code></td></tr>
-                    <tr><td>1</td><td>Salles (nom x y)</td><td><code>is_room()</code></td></tr>
-                    <tr><td>2</td><td>Liens (A-B)</td><td><code>is_link()</code></td></tr>
-                </tbody>
-            </table>
-            <div class="warning">
-                <strong>Règles strictes :</strong>
-                <ul>
-                    <li>Un seul <code>##start</code> et un seul <code>##end</code>.</li>
-                    <li>Noms de salles uniques, coordonnées uniques.</li>
-                    <li>Pas de lien vers soi-même.</li>
-                </ul>
-            </div>
-        </section>
-
-        <section id="graph">
-            <h2>🕸️ Gestion du Graphe</h2>
-            <p>Le graphe est représenté par une liste chaînée de salles, chaque salle contenant une liste chaînée de ses voisins (<code>lnks</code>).</p>
-            <h3>Fonctions Principales :</h3>
-            <ul>
-                <li><code>push_room()</code> : Ajoute une salle en tête de liste.</li>
-                <li><code>add_link()</code> : Crée un lien <strong>bidirectionnel</strong> entre deux salles.</li>
-                <li><code>find_name()</code> : Recherche une salle par son nom (retourne un double pointeur).</li>
-            </ul>
-        </section>
-
-        <section id="bfs">
-            <h2>🧠 Algorithme BFS (Breadth-First Search)</h2>
-            <p>C'est le cœur de la résolution. On cherche le chemin le plus court entre <code>start</code> et <code>end</code>.</p>
-            <h3>Mécanique :</h3>
-            <ol>
-                <li>Initialiser une file avec le noeud <code>start</code>.</li>
-                <li>Tant que la file n'est pas vide :
-                    <ul>
-                        <li>Défiler le noeud actuel.</li>
-                        <li>Pour chaque voisin non visité et non bloqué par un flux inverse :</li>
-                        <li>Ajouter à la file et marquer le parent (<code>prev</code>).</li>
-                        <li><strong>Si voisin == end</strong> : Chemin trouvé !</li>
-                    </ul>
-                </li>
-                <li>Backtracking via <code>prev</code> pour reconstruire le chemin.</li>
-            </ol>
-            <div class="struct-box">
-                <strong>Astuce Anti-Collision :</strong> Lors du BFS, on ignore les liens qui vont à l'encontre d'un flux existant (<code>flow_to()</code>) pour éviter les blocages.
-            </div>
-        </section>
-
-        <section id="flow">
-            <h2>🌊 Flux de Fourmis (Flow Network)</h2>
-            <p>Une fois un chemin trouvé, on ne le garde pas juste comme une liste. On le transforme en <strong>tunnel</strong>.</p>
-            <h3>Update Flow :</h3>
-            <pre>// Backtracking depuis end vers start
-while (current != start) {
-    current->f_fm = prev;  // Marque le retour
-    prev->f_to = current;  // Marque l'avant (le tunnel)
-    current = prev;
-}</pre>
-            <p>Cela permet aux fourmis de circuler sans collision car chaque salle sait exactement quelle est la suivante dans le flux.</p>
-        </section>
-
-        <section id="optimization">
-            <h2>⚡ Optimisation du Nombre de Tours</h2>
-            <p>L'objectif est de minimiser : <code>Longueur_Max_Chemin + Nombre_Fourmis - 1</code>.</p>
-            <h3>Stratégie :</h3>
-            <p>La fonction <code>path_config()</code> teste différentes combinaisons de chemins :</p>
-            <ul>
-                <li>Les chemins courts peuvent accueillir plus de fourmis.</li>
-                <li>Les chemins longs en accueillent moins (ils "bouchent" le pipeline).</li>
-                <li>On calcule le coût total pour chaque combinaison et on garde la meilleure.</li>
-            </ul>
-        </section>
-
-        <section id="workflow">
-            <h2>🔄 Workflow Complet d'Exécution</h2>
-            <div class="success">
-                <ol>
-                    <li><strong>Parsing</strong> : Lecture et validation de la carte.</li>
-                    <li><strong>BFS #1</strong> : Trouve le chemin le plus court.</li>
-                    <li><strong>Update Flow</strong> : Marque le tunnel <code>f_to/f_fm</code>.</li>
-                    <li><strong>BFS #2</strong> : Cherche un deuxième chemin disjoint (en respectant les tunnels existants).</li>
-                    <li><strong>Path Config</strong> : Répartit optimalement les fourmis sur les chemins trouvés.</li>
-                    <li><strong>Simulation</strong> :
-                        <ul>
-                            <li>Boucle tour par tour.</li>
-                            <li><code>move_ants()</code> : Avance toutes les fourmis dans leurs tunnels.</li>
-                            <li><code>select_paths()</code> : Injecte de nouvelles fourmis au départ si possible.</li>
-                            <li>Affiche les mouvements <code>L1-A L2-B</code>.</li>
-                        </ul>
-                    </li>
-                </ol>
-            </div>
-        </section>
-    </main>
 </div>
-
-<footer style="text-align: center; padding: 2rem; background: var(--primary); color: white; margin-top: 2rem;">
-    <p>Document généré pour le projet Lem-in - 42 School</p>
-</footer>
-
+                    <div class="shell-input-line">
+                        <span class="prompt">lem-in$</span>
+                        <input type="text" id="shell-input" placeholder="Tapez une commande..." autocomplete="off">
+                    </div>
+                </div>
+                <div class="controls">
+                    <button onclick="generateMap('easy')">Générer Facile</button>
+                    <button onclick="generateMap('medium')">Générer Moyen</button>
+                    <button onclick="generateMap('hard')">Générer Difficile</button>
+                    <button onclick="runSolver()">Lancer Résolution</button>
+                    <button onclick="resetSimulation()">Reset</button>
+                </div>
+                <div class="help-text">Commandes: generate, solve, reset, help, clear, speed [n]</div>
+            </div>
+            <div class="panel">
+                <h3 style="color: #e94560; margin-bottom: 0.5rem;">⚙️ Contrôles</h3>
+                <div class="speed-control">
+                    <label>Vitesse:</label>
+                    <input type="range" id="speed-slider" min="1" max="100" value="50">
+                    <span id="speed-value">50%</span>
+                </div>
+                <div class="controls">
+                    <button onclick="togglePause()" id="pause-btn">Pause</button>
+                    <button onclick="stepForward()">Step +</button>
+                    <button onclick="toggleLabels()" id="labels-btn">Labels: ON</button>
+                </div>
+            </div>
+        </div>
+        <div class="right-panel">
+            <div class="panel" style="flex: 1; display: flex; flex-direction: column;">
+                <h3 style="color: #e94560; margin-bottom: 0.5rem;">🎮 Visualiseur</h3>
+                <div class="canvas-container"><canvas id="farm-canvas"></canvas></div>
+                <div class="stats">
+                    <div class="stat-box"><div class="stat-value" id="stat-ants">0</div><div class="stat-label">Fourmis Totales</div></div>
+                    <div class="stat-box"><div class="stat-value" id="stat-moved">0</div><div class="stat-label">Déplacements</div></div>
+                    <div class="stat-box"><div class="stat-value" id="stat-arrived">0</div><div class="stat-label">Arrivées</div></div>
+                    <div class="stat-box"><div class="stat-value" id="stat-turns">0</div><div class="stat-label">Tours</div></div>
+                    <div class="stat-box"><div class="stat-value" id="stat-paths">0</div><div class="stat-label">Chemins</div></div>
+                    <div class="stat-box"><div class="stat-value" id="stat-status">Ready</div><div class="stat-label">Statut</div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        class Room { constructor(name, x, y) { this.name = name; this.x = x; this.y = y; this.links = []; this.isStart = false; this.isEnd = false; this.ant = null; } }
+        class Ant { constructor(id) { this.id = id; this.room = null; this.finished = false; } }
+        class Path { constructor() { this.rooms = []; this.antsToSend = 0; this.antsSent = 0; } }
+        class LemInEngine {
+            constructor() { this.rooms = []; this.ants = []; this.paths = []; this.startRoom = null; this.endRoom = null; this.totalAnts = 0; this.turns = 0; this.moves = []; this.isRunning = false; this.isPaused = false; this.speed = 50; this.animationId = null; }
+            generateMap(difficulty = 'medium') {
+                this.reset();
+                let config = difficulty === 'easy' ? { ants: 5, rooms: 8, links: 10 } : difficulty === 'hard' ? { ants: 50, rooms: 50, links: 100 } : { ants: 15, rooms: 20, links: 35 };
+                for (let i = 0; i < config.rooms; i++) {
+                    const name = i === 0 ? 'start' : (i === config.rooms - 1 ? 'end' : `R${i}`);
+                    const room = new Room(name, Math.random() * 800, Math.random() * 600);
+                    if (i === 0) { room.isStart = true; this.startRoom = room; } else if (i === config.rooms - 1) { room.isEnd = true; this.endRoom = room; }
+                    this.rooms.push(room);
+                }
+                const connected = [0];
+                for (let i = 1; i < config.rooms; i++) { this.addLink(this.rooms[connected[Math.floor(Math.random() * connected.length)]], this.rooms[i]); connected.push(i); }
+                let linksAdded = connected.length - 1;
+                while (linksAdded < config.links) { const i1 = Math.floor(Math.random() * config.rooms), i2 = Math.floor(Math.random() * config.rooms); if (i1 !== i2 && !this.areLinked(this.rooms[i1], this.rooms[i2])) { this.addLink(this.rooms[i1], this.rooms[i2]); linksAdded++; } }
+                this.totalAnts = config.ants;
+                for (let i = 0; i < config.ants; i++) this.ants.push(new Ant(i + 1));
+                return config;
+            }
+            addLink(r1, r2) { if (!r1.links.includes(r2)) r1.links.push(r2); if (!r2.links.includes(r1)) r2.links.push(r1); }
+            areLinked(r1, r2) { return r1.links.includes(r2); }
+            findPathsBFS() {
+                this.paths = [];
+                const visited = new Set(), queue = [[this.startRoom]];
+                while (queue.length > 0 && this.paths.length < 3) {
+                    const path = queue.shift(), current = path[path.length - 1];
+                    if (current === this.endRoom) { const newPath = new Path(); newPath.rooms = [...path]; newPath.antsToSend = Math.max(1, Math.floor(this.totalAnts / (this.paths.length + 1))); this.paths.push(newPath); continue; }
+                    for (const neighbor of current.links) { if (!visited.has(neighbor) && !path.includes(neighbor)) { const inOther = this.paths.some(p => p.rooms.slice(1, -1).includes(neighbor)); if (!inOther || neighbor === this.startRoom || neighbor === this.endRoom) { visited.add(neighbor); queue.push([...path, neighbor]); } } }
+                }
+                let remaining = this.totalAnts;
+                this.paths.forEach((p, idx) => { p.antsToSend = idx === this.paths.length - 1 ? remaining : Math.min(remaining, Math.floor(this.totalAnts / this.paths.length)); remaining -= p.antsToSend; });
+                return this.paths.length;
+            }
+            solve() { const found = this.findPathsBFS(); if (found === 0) return "Aucun chemin !"; this.paths.forEach(p => p.antsSent = 0); this.turns = 0; this.moves = []; this.isRunning = true; this.isPaused = false; return `Résolution lancée ! ${found} chemin(s).`; }
+            step() {
+                if (!this.isRunning || this.isPaused) return false;
+                const movesThisTurn = [];
+                this.paths.forEach(path => {
+                    for (let i = path.rooms.length - 1; i >= 0; i--) {
+                        const room = path.rooms[i];
+                        if (room.ant && !room.ant.finished) {
+                            const ant = room.ant;
+                            if (i === path.rooms.length - 1) { ant.finished = true; room.ant = null; }
+                            else { const next = path.rooms[i + 1]; if (!next.ant) { room.ant = null; next.ant = ant; ant.room = next; movesThisTurn.push({ ant: ant.id, from: room.name, to: next.name }); } }
+                        }
+                    }
+                });
+                let toDeploy = this.totalAnts - this.paths.reduce((sum, p) => sum + p.antsSent, 0);
+                this.paths.forEach(path => { if (path.antsSent < path.antsToSend && toDeploy > 0 && !path.rooms[0].ant) { const ant = this.ants.find(a => !a.room && !a.finished); if (ant) { path.rooms[0].ant = ant; ant.room = path.rooms[0]; path.antsSent++; toDeploy--; movesThisTurn.push({ ant: ant.id, from: 'START', to: path.rooms[0].name }); } } });
+                this.turns++; this.moves.push(...movesThisTurn);
+                if (this.ants.every(a => a.finished)) this.isRunning = false;
+                return !this.isRunning;
+            }
+            reset() { this.isRunning = false; this.isPaused = false; this.turns = 0; this.moves = []; this.paths = []; this.rooms.forEach(r => r.ant = null); this.ants.forEach(a => { a.room = null; a.finished = false; }); }
+            getStatus() { const arrived = this.ants.filter(a => a.finished).length; return { total: this.totalAnts, arrived, turns: this.turns, paths: this.paths.length, running: this.isRunning, paused: this.isPaused }; }
+        }
+        const engine = new LemInEngine(), canvas = document.getElementById('farm-canvas'), ctx = canvas.getContext('2d'), shellOutput = document.getElementById('shell-output'), shellInput = document.getElementById('shell-input');
+        let showLabels = true, animationRunning = false;
+        function resizeCanvas() { const c = canvas.parentElement; canvas.width = c.clientWidth; canvas.height = c.clientHeight; draw(); }
+        window.addEventListener('resize', resizeCanvas);
+        function draw() {
+            ctx.fillStyle = '#0d1b2a'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            if (engine.rooms.length === 0) { ctx.fillStyle = '#666'; ctx.font = '20px Courier New'; ctx.textAlign = 'center'; ctx.fillText('Aucune carte. Cliquez sur Générer.', canvas.width/2, canvas.height/2); return; }
+            ctx.strokeStyle = '#0f3460'; ctx.lineWidth = 2;
+            engine.rooms.forEach(room => { room.links.forEach(link => { ctx.beginPath(); ctx.moveTo(room.x, room.y); ctx.lineTo(link.x, link.y); ctx.stroke(); }); });
+            engine.paths.forEach((path, idx) => { ctx.strokeStyle = `hsl(${idx * 120}, 70%, 50%)`; ctx.lineWidth = 4; ctx.beginPath(); path.rooms.forEach((r, i) => { if (i === 0) ctx.moveTo(r.x, r.y); else ctx.lineTo(r.x, r.y); }); ctx.stroke(); });
+            engine.rooms.forEach(room => {
+                ctx.beginPath(); ctx.arc(room.x, room.y, room.isStart || room.isEnd ? 20 : 12, 0, Math.PI * 2);
+                ctx.fillStyle = room.isStart ? '#00ff88' : room.isEnd ? '#e94560' : '#16213e'; ctx.fill();
+                ctx.strokeStyle = room.ant ? '#fff' : '#444'; ctx.lineWidth = room.ant ? 3 : 1; ctx.stroke();
+                if (showLabels) { ctx.fillStyle = '#fff'; ctx.font = '10px Courier New'; ctx.textAlign = 'center'; ctx.fillText(room.name, room.x, room.y - 18); }
+                if (room.ant) { ctx.fillStyle = '#ffd700'; ctx.beginPath(); ctx.arc(room.x, room.y, 6, 0, Math.PI * 2); ctx.fill(); if (showLabels) { ctx.fillStyle = '#ffd700'; ctx.font = 'bold 9px Courier New'; ctx.fillText('L'+room.ant.id, room.x, room.y + 4); } }
+            });
+        }
+        function updateStats() { const s = engine.getStatus(); document.getElementById('stat-ants').textContent = s.total; document.getElementById('stat-moved').textContent = engine.moves.length; document.getElementById('stat-arrived').textContent = s.arrived; document.getElementById('stat-turns').textContent = s.turns; document.getElementById('stat-paths').textContent = s.paths; document.getElementById('stat-status').textContent = s.running ? (s.paused ? 'Paused' : 'Running') : (s.arrived === s.total && s.total > 0 ? 'Done!' : 'Ready'); }
+        function animate() { if (engine.isRunning && !engine.isPaused) { engine.step(); draw(); updateStats(); } if (engine.isRunning) { setTimeout(() => { animationId = requestAnimationFrame(animate); }, 101 - engine.speed); } }
+        function startAnimation() { if (!animationRunning) { animationRunning = true; animate(); } }
+        function stopAnimation() { if (animationId) cancelAnimationFrame(animationId); animationRunning = false; }
+        function addToShell(text, color = '#00ff88') { const line = document.createElement('div'); line.textContent = text; line.style.color = color; shellOutput.appendChild(line); document.getElementById('shell-container').scrollTop = document.getElementById('shell-container').scrollHeight; }
+        function processCommand(cmd) {
+            const parts = cmd.trim().split(' '), command = parts[0].toLowerCase(), args = parts.slice(1);
+            addToShell('lem-in$ ' + cmd, '#e94560');
+            switch(command) {
+                case 'help': addToShell('Commandes: generate [easy|medium|hard], solve, reset, pause, resume, speed [1-100], labels [on|off], status, clear', '#fff'); break;
+                case 'generate': const cfg = engine.generateMap(args[0] || 'medium'); addToShell('Carte générée: '+cfg.ants+' fourmis, '+engine.rooms.length+' salles', '#00ff88'); draw(); updateStats(); break;
+                case 'solve': if (engine.rooms.length === 0) addToShell('Erreur: Générez d\'abord une carte!', '#ff4444'); else { addToShell(engine.solve(), '#00ff88'); startAnimation(); updateStats(); } break;
+                case 'reset': engine.reset(); stopAnimation(); draw(); updateStats(); addToShell('Réinitialisé.', '#00ff88'); break;
+                case 'pause': engine.isPaused = true; document.getElementById('pause-btn').textContent = 'Resume'; addToShell('Pause.', '#ffa500'); break;
+                case 'resume': case 'restart': engine.isPaused = false; document.getElementById('pause-btn').textContent = 'Pause'; addToShell('Repris.', '#00ff88'); break;
+                case 'speed': const spd = parseInt(args[0]); if (spd >= 1 && spd <= 100) { engine.speed = spd; document.getElementById('speed-slider').value = spd; document.getElementById('speed-value').textContent = spd+'%'; addToShell('Vitesse: '+spd+'%', '#00ff88'); } else addToShell('Erreur: 1-100', '#ff4444'); break;
+                case 'labels': showLabels = args[0] !== 'off'; document.getElementById('labels-btn').textContent = 'Labels: '+(showLabels?'ON':'OFF'); draw(); break;
+                case 'status': addToShell(JSON.stringify(engine.getStatus(), null, 2), '#00ff88'); break;
+                case 'clear': shellOutput.innerHTML = ''; addToShell('Effacé.', '#00ff88'); break;
+                default: if (command) addToShell('Commande inconnue. Tapez help.', '#ff4444');
+            }
+        }
+        shellInput.addEventListener('keypress', e => { if (e.key === 'Enter') { processCommand(shellInput.value); shellInput.value = ''; } });
+        function generateMap(d) { processCommand('generate '+d); }
+        function runSolver() { processCommand('solve'); }
+        function resetSimulation() { processCommand('reset'); }
+        function togglePause() { if (engine.isPaused) processCommand('resume'); else if (engine.isRunning) processCommand('pause'); else processCommand('solve'); }
+        function stepForward() { if (!engine.isRunning) processCommand('solve'); else { engine.step(); draw(); updateStats(); } }
+        function toggleLabels() { showLabels = !showLabels; document.getElementById('labels-btn').textContent = 'Labels: '+(showLabels?'ON':'OFF'); draw(); }
+        document.getElementById('speed-slider').addEventListener('input', e => { engine.speed = parseInt(e.target.value); document.getElementById('speed-value').textContent = engine.speed+'%'; });
+        resizeCanvas(); addToShell('Prêt. Générez une carte pour commencer!', '#00ff88'); updateStats();
+    </script>
 </body>
 </html>
